@@ -1,19 +1,23 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="es" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Finanzas Lissy & Danny</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2933/2933116.png">
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* COLORES */
         :root[data-theme="light"] { --bg: #f4f7f6; --surface: #ffffff; --text: #2d3436; --text-muted: #636e72; --border: #dfe6e9; --blue: #0984e3; --green: #00b894; --red: #d63031; --orange: #e17055; }
         :root[data-theme="dark"] { --bg: #1e1e24; --surface: #2b2b36; --text: #f5f6fa; --text-muted: #a4b0be; --border: #3d3d4e; --blue: #74b9ff; --green: #55efc4; --red: #ff7675; --orange: #fab1a0; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); color: var(--text); transition: background 0.3s; padding-bottom: 80px; }
 
-        /* TÍTULO PRINCIPAL */
-        .app-title { text-align: center; padding: 15px 0 0; font-size: 1.3rem; font-weight: 800; color: var(--blue); letter-spacing: 1px;}
+        .app-title { text-align: center; padding: 45px 0 0; font-size: 1.3rem; font-weight: 800; color: var(--blue); letter-spacing: 1px;}
         .saludo-usuario { text-align: center; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;}
 
         /* PANTALLA PIN */
@@ -25,7 +29,7 @@
         .key { width: 75px; height: 75px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); display: flex; justify-content: center; align-items: center; font-size: 28px; color: white; background: transparent; cursor: pointer; }
         .key:active { background: rgba(255,255,255,0.4); }
 
-        /* CABECERA (SALDO) */
+        /* CABECERA */
         .header { padding: 10px 20px 15px; display: flex; justify-content: space-between; align-items: flex-start; }
         .saldo-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
         .saldo-wrapper { display: flex; align-items: center; gap: 10px; }
@@ -33,10 +37,15 @@
         .saldo-usd { font-size: 0.9rem; color: var(--green); font-weight: bold; margin-top: 2px;}
         .hoy-container { margin-top: 8px; font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 5px; border-top: 1px solid var(--border); padding-top: 8px; width: max-content;}
         .btn-icon { background: var(--surface); border: 1px solid var(--border); width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; color: var(--text); }
+        .header-buttons { display: flex; gap: 10px; }
 
-        /* GRÁFICO CENTRAL (La jaula para que no crezca de más) */
-        .chart-section { margin: 10px 20px; background: var(--surface); padding: 20px; border-radius: 25px; text-align: center; }
-        .chart-container { position: relative; height: 220px; width: 100%; max-width: 220px; margin: 10px auto 0; display: flex; justify-content: center; }
+        /* GRÁFICO (Zona Deslizable) */
+        .chart-section { margin: 10px 20px; background: var(--surface); padding: 20px; border-radius: 25px; text-align: center; overflow: hidden;}
+        .chart-container { position: relative; height: 220px; width: 100%; max-width: 300px; margin: 10px auto 0; display: flex; justify-content: center; }
+        .swipe-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 15px; letter-spacing: 1px;}
+        .swipe-dots { display: flex; justify-content: center; gap: 8px; margin-top: 8px;}
+        .s-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+        .s-dot.active { background: var(--blue); }
 
         /* BOTONES ACCIÓN */
         .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 20px; }
@@ -57,7 +66,7 @@
         .bill-amount { font-weight: bold; font-size: 1.05rem; text-align: right; }
         .pay-btn { background: var(--border); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 16px; cursor: pointer; margin-left: 15px; }
 
-        /* VENTANAS EMERGENTES (MODALS) */
+        /* MODALS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: flex-end; }
         .modal.active { display: flex; }
         .modal-content { background: var(--bg); width: 100%; max-width: 500px; border-radius: 20px 20px 0 0; padding: 25px; animation: slideUp 0.3s ease-out; }
@@ -94,7 +103,7 @@
         </div>
     </div>
 
-    <div class="loader" id="loader">Conectando con Google...<br><small>Espera un ratito</small></div>
+    <div class="loader" id="loader">Conectando...</div>
 
     <!-- APP PRINCIPAL -->
     <div id="app-content" style="display: none;">
@@ -109,16 +118,25 @@
                     <div class="saldo-monto" id="saldo-pesos">$ 0,00</div>
                     <button class="btn-icon" onclick="toggleVisibilidad()" style="border:none; background:transparent;">👁️</button>
                 </div>
-                <div class="saldo-usd" id="saldo-usd">Calculando Dólar BNA...</div>
+                <div class="saldo-usd" id="saldo-usd">Calculando...</div>
                 <div class="hoy-container"><span>Gastos de hoy:</span><span style="color:var(--red); font-weight:bold;" id="gasto-hoy">-$ 0</span></div>
             </div>
-            <button class="btn-icon" onclick="toggleTheme()">🌙</button>
+            <div class="header-buttons">
+                <button class="btn-icon" onclick="abrirModal('modalConfig')">⚙️</button>
+                <button class="btn-icon" onclick="toggleTheme()" id="btn-theme">🌙</button>
+            </div>
         </header>
 
-        <section class="chart-section">
+        <!-- ZONA DEL GRÁFICO (AHORA CON SWIPE) -->
+        <section class="chart-section" id="zona-swipe">
             <h3 style="font-size: 0.9rem; color: var(--text-muted); text-align:left;">Ingresos por Canal (Este mes)</h3>
             <div class="chart-container">
                 <canvas id="ingresosChart"></canvas>
+            </div>
+            <div class="swipe-hint">⬅️ Desliza para cambiar ➡️</div>
+            <div class="swipe-dots">
+                <div class="s-dot active" id="dot1"></div>
+                <div class="s-dot" id="dot2"></div>
             </div>
         </section>
 
@@ -135,90 +153,77 @@
         </div>
 
         <div class="section-title">Próximos a Vencer</div>
-        <div id="lista-vencimientos">
-            <!-- Aquí aparecerán los vencimientos -->
-        </div>
+        <div id="lista-vencimientos"></div>
     </div>
 
-    <!-- MODAL INGRESO -->
+    <!-- MODALES DE REGISTRO -->
     <div class="modal" id="modalIngreso">
         <div class="modal-content">
             <h2 style="margin-bottom: 15px;">Registrar Ingreso</h2>
-            <div class="form-group">
-                <label>¿De dónde entró la plata?</label>
-                <select id="ingresoOrigen"></select>
-            </div>
-            <div class="form-group">
-                <label>Monto ($)</label>
-                <input type="number" id="ingresoMonto" placeholder="Ej. 100000">
-            </div>
+            <div class="form-group"><label>¿De dónde entró?</label><select id="ingresoOrigen"></select></div>
+            <div class="form-group"><label>Monto ($)</label><input type="number" id="ingresoMonto" placeholder="Ej. 100000"></div>
             <button class="btn-submit" onclick="guardar('Ingreso')">Guardar Ingreso</button>
             <button class="btn-submit" style="background:transparent; color:var(--text-muted); margin-top:5px;" onclick="cerrarModals()">Cancelar</button>
         </div>
     </div>
 
-    <!-- MODAL GASTO -->
     <div class="modal" id="modalGasto">
         <div class="modal-content">
             <h2 style="margin-bottom: 15px;">Registrar Gasto</h2>
-            <div class="form-group">
-                <label>Categoría</label>
-                <select id="gastoCategoria"></select>
-            </div>
-            <div class="form-group">
-                <label>Monto ($)</label>
-                <input type="number" id="gastoMonto" placeholder="Ej. 15000">
-            </div>
+            <div class="form-group"><label>Categoría</label><select id="gastoCategoria"></select></div>
+            <div class="form-group"><label>Monto ($)</label><input type="number" id="gastoMonto" placeholder="Ej. 15000"></div>
             <button class="btn-submit" onclick="guardar('Gasto')">Guardar Gasto</button>
             <button class="btn-submit" style="background:transparent; color:var(--text-muted); margin-top:5px;" onclick="cerrarModals()">Cancelar</button>
         </div>
     </div>
 
-    <!-- MODAL VENCIMIENTO -->
     <div class="modal" id="modalVencimiento">
         <div class="modal-content">
             <h2 style="margin-bottom: 15px;">Nuevo Vencimiento</h2>
-            <div class="form-group">
-                <label>Nombre (Ej. Luz Edesur)</label>
-                <input type="text" id="vencNombre">
-            </div>
-            <div class="form-group">
-                <label>Fecha de Vencimiento</label>
-                <input type="date" id="vencFecha">
-            </div>
-            <div class="form-group">
-                <label>Monto Estimado ($)</label>
-                <input type="number" id="vencMonto">
-            </div>
-            <div class="form-group">
-                <label>Se pagará con:</label>
-                <select id="vencCuenta">
-                    <option>Caja de Ahorro ÉL</option>
-                    <option>Caja de Ahorro ELLA</option>
-                    <option>Tarjeta Crédito ÉL</option>
-                    <option>Tarjeta Crédito ELLA</option>
-                    <option>Efectivo</option>
-                </select>
-            </div>
+            <div class="form-group"><label>Nombre</label><input type="text" id="vencNombre"></div>
+            <div class="form-group"><label>Fecha</label><input type="date" id="vencFecha"></div>
+            <div class="form-group"><label>Monto Estimado</label><input type="number" id="vencMonto"></div>
+            <div class="form-group"><label>Cuenta</label><select id="vencCuenta"><option>Caja de Ahorro ÉL</option><option>Caja de Ahorro ELLA</option><option>Efectivo</option></select></div>
             <button class="btn-submit" onclick="guardarVencimiento()">Anotar Vencimiento</button>
             <button class="btn-submit" style="background:transparent; color:var(--text-muted); margin-top:5px;" onclick="cerrarModals()">Cancelar</button>
         </div>
     </div>
 
+    <!-- MODAL CONFIGURACIÓN -->
+    <div class="modal" id="modalConfig">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 15px;">Configuración</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Usuario actual: <b id="config-user-name"></b></p>
+            <div class="form-group">
+                <label>Nuevo PIN (4 números)</label>
+                <input type="number" id="nuevoPin" placeholder="Ej. 1234">
+            </div>
+            <button class="btn-submit" onclick="cambiarPin()">Guardar Nuevo PIN</button>
+            
+            <hr style="border:0; border-top:1px solid var(--border); margin:25px 0 15px;">
+            
+            <h3 style="color:var(--red); font-size:1rem; margin-bottom:10px;">Zona de Peligro</h3>
+            <button class="btn-submit" style="background:var(--red);" onclick="iniciarReset()">⚠️ Borrar Todos los Datos</button>
+            
+            <button class="btn-submit" style="background:transparent; color:var(--text-muted); margin-top:10px;" onclick="cerrarModals()">Cerrar</button>
+        </div>
+    </div>
+
     <script>
-        // --- ¡AQUÍ PEGAS TU LINK DE GOOGLE APPS SCRIPT! ---
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwsgYEaYJSFcyqJklszI9i0z03RlZN3AZXlqcgMyTj9m7OyNapG4qvB9tpfDORG3ixY/exec'; 
+        // --- PEGA AQUÍ TU NUEVO LINK DE APPS SCRIPT ---
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzhecalB-Pg6pyFJrigD3WXFJWPZlcvsy5WZgcTVvb-uCNSIl_7-ZAvhI-rQNzThhfF/exec'; 
 
-        // LAS CONTRASEÑAS
-        const PIN_DANNY = "1090";
-        const PIN_LISSY = "2024";
+        // MEMORIA
+        let PIN_DANNY = localStorage.getItem('pin_danny') || "1090";
+        let PIN_LISSY = localStorage.getItem('pin_lissy') || "2024";
+        let usuarioActual = "";
+        const temaGuardado = localStorage.getItem('tema_app') || 'dark';
+        document.documentElement.setAttribute('data-theme', temaGuardado);
+        document.getElementById('btn-theme') ? document.getElementById('btn-theme').innerText = temaGuardado === 'dark' ? '☀️' : '🌙' : null;
 
-        // Variables Globales
-        let pinIngresado = "";
-        let appData = { transacciones: [], vencimientos: [], origenesIngreso: [], categoriasGasto: [] };
-        let dolarBNA = 1;
-        let saldoVisible = true;
-        let chartInstance = null;
+        let pinIngresado = ""; let appData = { transacciones: [], vencimientos: [], origenesIngreso: [], categoriasGasto: [] };
+        let dolarBNA = 1; let saldoVisible = true;
+        let chartInstance = null; let graficoEsCirculo = true; let datosGraficoGlobal = {}; 
 
         const fmtARS = (num) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(num);
 
@@ -230,74 +235,67 @@
                 if(pinIngresado.length === 4) setTimeout(validarPin, 200);
             }
         }
-        function clearPin() {
-            pinIngresado = "";
-            document.querySelectorAll('.dot').forEach(d => d.classList.remove('filled'));
-        }
+        function clearPin() { pinIngresado = ""; document.querySelectorAll('.dot').forEach(d => d.classList.remove('filled')); }
         function validarPin() {
-            let nombreUsuario = "";
-            
-            if(pinIngresado === PIN_DANNY) { nombreUsuario = "Danny"; }
-            else if(pinIngresado === PIN_LISSY) { nombreUsuario = "Lissy"; }
-
-            if(nombreUsuario !== "") {
-                document.getElementById('saludo-texto').innerText = "¡Hola " + nombreUsuario + "!";
+            if(pinIngresado === PIN_DANNY) { usuarioActual = "Danny"; } else if(pinIngresado === PIN_LISSY) { usuarioActual = "Lissy"; }
+            if(usuarioActual !== "") {
+                document.getElementById('saludo-texto').innerText = "¡Hola " + usuarioActual + "!";
+                document.getElementById('config-user-name').innerText = usuarioActual;
                 document.getElementById('login-screen').style.opacity = '0';
                 setTimeout(() => { document.getElementById('login-screen').style.display = 'none'; document.getElementById('app-content').style.display = 'block'; iniciarApp(); }, 500);
-            } else { 
-                alert("PIN Incorrecto. Intenta de nuevo."); 
-                clearPin(); 
+            } else { alert("PIN Incorrecto."); clearPin(); }
+        }
+
+        // --- FUNCIONES DE CONFIGURACIÓN ---
+        function cambiarPin() {
+            const nuevo = document.getElementById('nuevoPin').value;
+            if(nuevo.length !== 4) return alert("El PIN debe tener 4 números.");
+            if(usuarioActual === "Danny") { localStorage.setItem('pin_danny', nuevo); PIN_DANNY = nuevo; } 
+            else { localStorage.setItem('pin_lissy', nuevo); PIN_LISSY = nuevo; }
+            alert("PIN actualizado en este celular."); document.getElementById('nuevoPin').value = ""; cerrarModals();
+        }
+
+        function iniciarReset() {
+            // 1. Pedir PIN de seguridad
+            let pinSeguridad = prompt("SEGURIDAD: Ingresa tu PIN actual para continuar:");
+            if(pinSeguridad !== PIN_DANNY && pinSeguridad !== PIN_LISSY) { return alert("PIN Incorrecto. Operación cancelada."); }
+
+            // 2. Pregunta de Confirmación
+            let confirmacion = confirm("¿ESTÁS SEGURO?\n\nSe borrarán TODOS los ingresos, gastos y vencimientos. Tu saldo volverá a cero.\n\nElige 'Aceptar' para borrar todo o 'Cancelar' para salir.");
+            if(confirmacion) {
+                enviarDatos({ action: 'resetApp' });
             }
         }
 
-        // --- NÚCLEO DE LA APP ---
+        // --- NÚCLEO ---
         async function iniciarApp() {
             mostrarLoader(true);
-            try {
-                const resDolar = await fetch('https://dolarapi.com/v1/dolares/oficial');
-                const dataDolar = await resDolar.json();
-                dolarBNA = dataDolar.venta;
-            } catch(e) { console.log('Sin internet para dolar'); }
-            
+            try { const res = await fetch('https://dolarapi.com/v1/dolares/oficial'); const dat = await res.json(); dolarBNA = dat.venta; } catch(e) {}
             await cargarDatosDesdeGoogle();
             mostrarLoader(false);
         }
 
         async function cargarDatosDesdeGoogle() {
             try {
-                const res = await fetch(SCRIPT_URL);
-                appData = await res.json();
-                
+                const res = await fetch(SCRIPT_URL); appData = await res.json();
                 document.getElementById('ingresoOrigen').innerHTML = appData.origenesIngreso.map(o => `<option value="${o}">${o}</option>`).join('');
                 document.getElementById('gastoCategoria').innerHTML = appData.categoriasGasto.map(c => `<option value="${c}">${c}</option>`).join('');
-                
                 procesarPantalla();
-            } catch(e) { alert("Error conectando a tu hoja de Google."); }
+            } catch(e) { alert("Error de conexión."); }
         }
 
         function procesarPantalla() {
-            let saldoTotal = 0;
-            let gastoHoy = 0;
-            const hoyStr = new Date().toLocaleDateString('es-AR');
-            const mesActual = new Date().getMonth();
-            let ingresosPorCanal = {}; 
+            let saldoTotal = 0; let gastoHoy = 0;
+            const hoyStr = new Date().toLocaleDateString('es-AR'); const mesActual = new Date().getMonth();
+            datosGraficoGlobal = {}; 
 
             appData.transacciones.forEach(t => {
-                const fechaT = new Date(t[1]);
-                const tipo = t[2];
-                const categoria = t[3];
-                const monto = parseFloat(t[4]);
-
+                const fechaT = new Date(t[1]); const tipo = t[2]; const categoria = t[3]; const monto = parseFloat(t[4]);
                 if (tipo === 'Ingreso') {
                     saldoTotal += monto;
-                    if (fechaT.getMonth() === mesActual) {
-                        ingresosPorCanal[categoria] = (ingresosPorCanal[categoria] || 0) + monto;
-                    }
+                    if (fechaT.getMonth() === mesActual) { datosGraficoGlobal[categoria] = (datosGraficoGlobal[categoria] || 0) + monto; }
                 } else if (tipo === 'Gasto') {
-                    saldoTotal -= monto;
-                    if (fechaT.toLocaleDateString('es-AR') === hoyStr) {
-                        gastoHoy += monto;
-                    }
+                    saldoTotal -= monto; if (fechaT.toLocaleDateString('es-AR') === hoyStr) { gastoHoy += monto; }
                 }
             });
 
@@ -305,102 +303,96 @@
             document.getElementById('saldo-usd').innerText = `(USD ${(saldoTotal/dolarBNA).toFixed(2)} - BNA: $${dolarBNA})`;
             document.getElementById('gasto-hoy').innerText = "-" + fmtARS(gastoHoy);
 
-            actualizarGrafico(ingresosPorCanal);
+            dibujarGrafico();
 
-            const listaDiv = document.getElementById('lista-vencimientos');
-            listaDiv.innerHTML = '';
+            const listaDiv = document.getElementById('lista-vencimientos'); listaDiv.innerHTML = '';
             const fechaHoy = new Date();
 
             appData.vencimientos.forEach(v => {
                 if(v[5] === 'SI') return; 
-                
-                const id = v[0];
-                const fechaPago = new Date(v[1]);
-                const servicio = v[2];
-                const monto = v[3];
-                const cuenta = v[4];
-
-                const difTiempo = fechaPago.getTime() - fechaHoy.getTime();
-                const diasFaltan = Math.ceil(difTiempo / (1000 * 3600 * 24));
+                const id = v[0]; const fechaPago = new Date(v[1]); const servicio = v[2]; const monto = v[3]; const cuenta = v[4];
+                const diasFaltan = Math.ceil((fechaPago.getTime() - fechaHoy.getTime()) / (1000 * 3600 * 24));
                 
                 let esUrgente = diasFaltan <= 4 && diasFaltan >= 0;
                 let cartelUrgente = esUrgente ? `<div class="urgente-badge">¡Vence en ${diasFaltan} días!</div>` : '';
-                if (diasFaltan < 0) cartelUrgente = `<div class="urgente-badge">¡VENCIDO HACE ${Math.abs(diasFaltan)} DÍAS!</div>`;
+                if (diasFaltan < 0) cartelUrgente = `<div class="urgente-badge">¡VENCIDO!</div>`;
 
                 listaDiv.innerHTML += `
                     <div class="bill-card ${esUrgente || diasFaltan < 0 ? 'urgente' : ''}">
-                        <div class="bill-info">
-                            ${cartelUrgente}
-                            <div class="bill-name">${servicio}</div>
-                            <div class="bill-date">Vence: ${fechaPago.toLocaleDateString('es-AR')} | ${cuenta}</div>
-                        </div>
-                        <div class="bill-amount">${fmtARS(monto)}</div>
-                        <button class="pay-btn" onclick="pagarServicio(${id}, '${servicio}', ${monto})">✓</button>
-                    </div>
-                `;
+                        <div class="bill-info">${cartelUrgente}<div class="bill-name">${servicio}</div><div class="bill-date">Vence: ${fechaPago.toLocaleDateString('es-AR')} | ${cuenta}</div></div>
+                        <div class="bill-amount">${fmtARS(monto)}</div><button class="pay-btn" onclick="pagarServicio(${id}, '${servicio}', ${monto})">✓</button>
+                    </div>`;
             });
             if(listaDiv.innerHTML === '') listaDiv.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding-bottom:20px;">No hay deudas pendientes 🎉</p>';
         }
 
         async function enviarDatos(paquete) {
-            mostrarLoader(true);
-            cerrarModals();
+            mostrarLoader(true); cerrarModals();
             fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(paquete) });
-            
-            setTimeout(async () => {
-                await cargarDatosDesdeGoogle();
-                mostrarLoader(false);
-            }, 1500);
+            setTimeout(async () => { await cargarDatosDesdeGoogle(); mostrarLoader(false); }, 1500);
         }
 
         function guardar(tipo) {
             const origen = tipo === 'Ingreso' ? document.getElementById('ingresoOrigen').value : document.getElementById('gastoCategoria').value;
             const montoStr = tipo === 'Ingreso' ? document.getElementById('ingresoMonto').value : document.getElementById('gastoMonto').value;
             if(!montoStr) return alert('Pon un monto');
-            
             enviarDatos({ action: 'addTransaction', tipo: tipo, categoria: origen, monto: montoStr });
-            
             document.getElementById('ingresoMonto').value = ''; document.getElementById('gastoMonto').value = '';
         }
-
         function guardarVencimiento() {
-            const nombre = document.getElementById('vencNombre').value;
-            const fecha = document.getElementById('vencFecha').value;
-            const monto = document.getElementById('vencMonto').value;
-            const cuenta = document.getElementById('vencCuenta').value;
-            if(!nombre || !fecha || !monto) return alert('Completa todos los datos');
-            
-            enviarDatos({ action: 'addVencimiento', fecha: fecha, servicio: nombre, monto: monto, cuenta: cuenta });
+            const nombre = document.getElementById('vencNombre').value; const fecha = document.getElementById('vencFecha').value; const monto = document.getElementById('vencMonto').value; const cuenta = document.getElementById('vencCuenta').value;
+            if(!nombre || !fecha || !monto) return alert('Faltan datos'); enviarDatos({ action: 'addVencimiento', fecha: fecha, servicio: nombre, monto: monto, cuenta: cuenta });
         }
-
         function pagarServicio(id, nombre, monto) {
-            if(confirm(`¿Confirmas que ya pagaste ${nombre}? Se restarán ${fmtARS(monto)} de tu saldo.`)){
-                enviarDatos({ action: 'pagarVencimiento', id: id });
-            }
+            if(confirm(`¿Ya pagaste ${nombre}? Se restarán ${fmtARS(monto)} del saldo.`)){ enviarDatos({ action: 'pagarVencimiento', id: id }); }
         }
 
-        function actualizarGrafico(datos) {
+        // --- SISTEMA DE DESLIZAR (SWIPE) PARA EL GRÁFICO ---
+        let touchstartX = 0; let touchendX = 0;
+        const zonaSwipe = document.getElementById('zona-swipe');
+        
+        zonaSwipe.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
+        zonaSwipe.addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            manejarSwipe();
+        });
+
+        function manejarSwipe() {
+            if (touchendX < touchstartX - 40) { graficoEsCirculo = false; dibujarGrafico(); } // Deslizó Izquierda
+            if (touchendX > touchstartX + 40) { graficoEsCirculo = true; dibujarGrafico(); }  // Deslizó Derecha
+        }
+
+        function dibujarGrafico() {
             const ctx = document.getElementById('ingresosChart').getContext('2d');
-            const etiquetas = Object.keys(datos);
-            const valores = Object.values(datos);
-            const colores = ['#00b894', '#0984e3', '#d63031', '#e17055', '#6c5ce7', '#fdcb6e']; 
+            const etiquetas = Object.keys(datosGraficoGlobal); const valores = Object.values(datosGraficoGlobal);
+            const colores = ['#0984e3', '#00b894', '#d63031', '#e17055', '#6c5ce7', '#fdcb6e']; 
 
             if(chartInstance) chartInstance.destroy(); 
-            
             if(etiquetas.length === 0) { etiquetas.push("Sin ingresos aún"); valores.push(1); colores[0] = '#dfe6e9'; }
 
+            // Actualizar los puntitos de abajo
+            document.getElementById('dot1').classList.toggle('active', graficoEsCirculo);
+            document.getElementById('dot2').classList.toggle('active', !graficoEsCirculo);
+
             chartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: { labels: etiquetas, datasets: [{ data: valores, backgroundColor: colores, borderWidth: 0 }] },
-                options: { maintainAspectRatio: false, responsive: true, cutout: '70%', plugins: { legend: { position: 'bottom', labels: {color: 'gray'} } } }
+                type: graficoEsCirculo ? 'doughnut' : 'bar',
+                data: { labels: etiquetas, datasets: [{ label: 'Ingresos ($)', data: valores, backgroundColor: colores, borderWidth: 0, borderRadius: graficoEsCirculo?0:8 }] },
+                options: { 
+                    maintainAspectRatio: false, responsive: true, cutout: graficoEsCirculo ? '70%' : undefined, 
+                    plugins: { legend: { display: graficoEsCirculo, position: 'bottom', labels: {color: 'gray'} } },
+                    scales: graficoEsCirculo ? undefined : { x: { ticks:{color:'gray'}, grid:{display:false} }, y: { ticks:{color:'gray'}, grid:{color:'#3d3d4e'} } }
+                }
             });
         }
 
         function abrirModal(id) { document.getElementById(id).classList.add('active'); }
         function cerrarModals() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
-        function toggleTheme() { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'); }
         function mostrarLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
-        
+        function toggleTheme() { 
+            const html = document.documentElement; const nuevoTema = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', nuevoTema); localStorage.setItem('tema_app', nuevoTema);
+            document.getElementById('btn-theme').innerText = nuevoTema === 'dark' ? '☀️' : '🌙';
+        }
         function toggleVisibilidad() {
             saldoVisible = !saldoVisible;
             document.getElementById('saldo-pesos').innerText = saldoVisible ? fmtARS(appData.transacciones.filter(t=>t[2]==='Ingreso').reduce((a,b)=>a+parseFloat(b[4]),0) - appData.transacciones.filter(t=>t[2]==='Gasto').reduce((a,b)=>a+parseFloat(b[4]),0)) : "•••••••";
