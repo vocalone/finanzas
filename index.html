@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Finanzas Lissy & Danny</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* COLORES */
+        :root[data-theme="light"] { --bg: #f4f7f6; --surface: #ffffff; --text: #2d3436; --text-muted: #636e72; --border: #dfe6e9; --blue: #0984e3; --green: #00b894; --red: #d63031; --orange: #e17055; }
+        :root[data-theme="dark"] { --bg: #1e1e24; --surface: #2b2b36; --text: #f5f6fa; --text-muted: #a4b0be; --border: #3d3d4e; --blue: #74b9ff; --green: #55efc4; --red: #ff7675; --orange: #fab1a0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: var(--text); transition: background 0.3s; padding-bottom: 80px; }
+
+        /* TÍTULO PRINCIPAL */
+        .app-title { text-align: center; padding: 15px 0 0; font-size: 1.3rem; font-weight: 800; color: var(--blue); letter-spacing: 1px;}
+        .saludo-usuario { text-align: center; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;}
+
+        /* PANTALLA PIN */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--blue); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; transition: opacity 0.5s; }
+        .pin-dots { display: flex; gap: 15px; margin: 30px 0; }
+        .dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid white; }
+        .dot.filled { background: white; }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
+        .key { width: 75px; height: 75px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); display: flex; justify-content: center; align-items: center; font-size: 28px; color: white; background: transparent; cursor: pointer; }
+        .key:active { background: rgba(255,255,255,0.4); }
+
+        /* CABECERA (SALDO) */
+        .header { padding: 10px 20px 15px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .saldo-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .saldo-wrapper { display: flex; align-items: center; gap: 10px; }
+        .saldo-monto { font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+        .saldo-usd { font-size: 0.9rem; color: var(--green); font-weight: bold; margin-top: 2px;}
+        .hoy-container { margin-top: 8px; font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 5px; border-top: 1px solid var(--border); padding-top: 8px; width: max-content;}
+        .btn-icon { background: var(--surface); border: 1px solid var(--border); width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; color: var(--text); }
+
+        /* GRÁFICO CENTRAL (La jaula para que no crezca de más) */
+        .chart-section { margin: 10px 20px; background: var(--surface); padding: 20px; border-radius: 25px; text-align: center; }
+        .chart-container { position: relative; height: 220px; width: 100%; max-width: 220px; margin: 10px auto 0; display: flex; justify-content: center; }
+
+        /* BOTONES ACCIÓN */
+        .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 20px; }
+        .action-btn { background: var(--surface); border: none; padding: 15px 5px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; color: var(--text); font-weight: 600; font-size: 0.9rem; }
+        .action-btn .icon-bg { width: 45px; height: 45px; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 20px; }
+        .btn-ingreso .icon-bg { background: rgba(0, 184, 148, 0.15); color: var(--green); }
+        .btn-gasto .icon-bg { background: rgba(214, 48, 49, 0.15); color: var(--red); }
+        .btn-vence .icon-bg { background: rgba(9, 132, 227, 0.15); color: var(--blue); }
+
+        /* VENCIMIENTOS */
+        .section-title { margin: 25px 20px 10px; font-size: 1.1rem; font-weight: bold; }
+        .bill-card { margin: 0 20px 12px; background: var(--surface); border-radius: 18px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--blue); }
+        .bill-card.urgente { border-left: 5px solid var(--red); background: rgba(214, 48, 49, 0.05); }
+        .urgente-badge { font-size: 0.7rem; background: var(--red); color: white; padding: 2px 6px; border-radius: 10px; font-weight: bold; margin-bottom: 3px; display: inline-block;}
+        .bill-info { flex: 1; }
+        .bill-name { font-weight: bold; font-size: 1rem; }
+        .bill-date { font-size: 0.8rem; color: var(--text-muted); }
+        .bill-amount { font-weight: bold; font-size: 1.05rem; text-align: right; }
+        .pay-btn { background: var(--border); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 16px; cursor: pointer; margin-left: 15px; }
+
+        /* VENTANAS EMERGENTES (MODALS) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: flex-end; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--bg); width: 100%; max-width: 500px; border-radius: 20px 20px 0 0; padding: 25px; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem; color: var(--text-muted); }
+        .form-group input, .form-group select { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 1rem; }
+        .btn-submit { width: 100%; padding: 16px; background: var(--blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        
+        .loader { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 15px 30px; border-radius: 30px; z-index: 3000; font-weight: bold; text-align:center;}
+    </style>
+</head>
+<body>
+
+    <!-- PANTALLA PIN -->
+    <div id="login-screen">
+        <h2>Ingresa tu PIN</h2>
+        <div class="pin-dots" id="pin-dots">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+        <div class="keypad">
+            <button class="key" onclick="pressPin(1)">1</button>
+            <button class="key" onclick="pressPin(2)">2</button>
+            <button class="key" onclick="pressPin(3)">3</button>
+            <button class="key" onclick="pressPin(4)">4</button>
+            <button class="key" onclick="pressPin(5)">5</button>
+            <button class="key" onclick="pressPin(6)">6</button>
+            <button class="key" onclick="pressPin(7)">7</button>
+            <button class="key" onclick="pressPin(8)">8</button>
+            <button class="key" onclick="pressPin(9)">9</button>
+            <div></div>
+            <button class="key" onclick="pressPin(0)">0</button>
+            <button class="key" onclick="clearPin()" style="font-size:16px;">Borrar</button>
+        </div>
+    </div>
+
+    <div class="loader" id="loader">Conectando con Google...<br><small>Espera un ratito</small></div>
+
+    <!-- APP PRINCIPAL -->
+    <div id="app-content" style="display: none;">
+        
+        <div class="app-title">FINANZAS LISSY & DANNY</div>
+        <div class="saludo-usuario" id="saludo-texto"></div>
+
+        <header class="header">
+            <div>
+                <div class="saldo-label">Total Disponible</div>
+                <div class="saldo-wrapper">
+                    <div class="saldo-monto" id="saldo-pesos">$ 0,00</div>
+                    <button class="btn-icon" onclick="toggleVisibilidad()" style="border:none; background:transparent;">👁️</button>
+                </div>
+                <div class="saldo-usd" id="saldo-usd">Calculando Dólar BNA...</div>
+                <div class="hoy-container"><span>Gastos de hoy:</span><span style="color:var(--red); font-weight:bold;" id="gasto-hoy">-$ 0</span></div>
+            </div>
+            <button class="btn-icon" onclick="toggleTheme()">🌙</button>
+        </header>
+
+        <section class="chart-section">
+            <h3 style="font-size: 0.9rem; color: var(--text-muted); text-align:left;">Ingresos por Canal (Este mes)</h3>
+            <div class="chart-container">
+                <canvas id="ingresosChart"></canvas>
+            </div>
+        </section>
+
+        <div class="actions">
+            <button class="action-btn btn-ingreso" onclick="abrirModal('modalIngreso')">
+                <div class="icon-bg">💵</div><div>Ingreso</div>
+            </button>
+            <button class="action-btn btn-gasto" onclick="abrirModal('modalGasto')">
+                <div class="icon-bg">🛒</div><div>Gasto</div>
+            </button>
+            <button class="action-btn btn-vence" onclick="abrirModal('modalVencimiento')">
+                <div class="icon-bg">📅</div><div>Vencerá</div>
+            </button>
+        </div>
+
+        <div class="section-title">Próximos a Vencer</div>
+        <div id="lista-vencimientos">
+            <!-- Aquí aparecerán los vencimientos -->
+        </div>
+    </div>
+
+    <!-- MODAL INGRESO -->
+    <div class="modal" id="modalIngreso">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 15px;">Registrar Ingreso</h2>
+            <div class="form-group">
+                <label>¿De dónde entró la plata?</label>
+                <select id="ingresoOrigen"></select>
+            </div>
+            <div class="form-group">
+                <label>Monto ($)</label>
+                <input type="number" id="ingresoMonto" placeholder="Ej. 100000">
+            </div>
+            <button class="btn-submit" onclick="guardar('Ingreso')">Guardar Ingreso</button>
+            <button class="btn-submit" style="background:transparent; color:var(--text-muted); margin-top:5px;" onclick="cerrarModals()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL GASTO -->
+    <div class="modal" id="modalGasto">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 15px;">Registrar Gasto</h2>
+            <div class="form-group">
+                <label>Categoría</label>
+                <select id="gastoCategoria"></select>
+            </div>
+            <div class="form-group">
+                <label>Monto ($)</label>
+                <input type="number" id="gastoMonto" placeholder="Ej. 15000">
+            </div>
+            <button class="btn-submit" onclick="guardar('Gasto')">Guardar Gasto</button>
+            <button class="btn-submit" style="background:transparent; color:var(--text-muted); margin-top:5px;" onclick="cerrarModals()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL VENCIMIENTO -->
+    <div class="modal" id="modalVencimiento">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 15px;">Nuevo Vencimiento</h2>
+            <div class="form-group">
+                <label>Nombre (Ej. Luz Edesur)</label>
+                <input type="text" id="vencNombre">
+            </div>
+            <div class="form-group">
+                <label>Fecha de Vencimiento</label>
+                <input type="date" id="vencFecha">
+            </div>
+            <div class="form-group">
+                <label>Monto Estimado ($)</label>
+                <input type="number" id="vencMonto">
+            </div>
+            <div class="form-group">
+                <label>Se pagará con:</label>
+                <select id="vencCuenta">
+                    <option>Caja de Ahorro ÉL</option>
+                    <option>Caja de Ahorro ELLA</option>
+                    <option>Tarjeta Crédito ÉL</option>
+                    <option>Tarjeta Crédito ELLA</option>
+                    <option>Efectivo</option>
+                </select>
+            </div>
+            <button class="btn-submit" onclick="guardarVencimiento()">Anotar Vencimiento</button>
+            <button class="btn-submit" style="background:transparent; color:var(--text-muted); margin-top:5px;" onclick="cerrarModals()">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        // --- ¡AQUÍ PEGAS TU LINK DE GOOGLE APPS SCRIPT! ---
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwsgYEaYJSFcyqJklszI9i0z03RlZN3AZXlqcgMyTj9m7OyNapG4qvB9tpfDORG3ixY/exec'; 
+
+        // LAS CONTRASEÑAS
+        const PIN_DANNY = "1090";
+        const PIN_LISSY = "2024";
+
+        // Variables Globales
+        let pinIngresado = "";
+        let appData = { transacciones: [], vencimientos: [], origenesIngreso: [], categoriasGasto: [] };
+        let dolarBNA = 1;
+        let saldoVisible = true;
+        let chartInstance = null;
+
+        const fmtARS = (num) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(num);
+
+        // --- SISTEMA DE PIN ---
+        function pressPin(num) {
+            if(pinIngresado.length < 4) {
+                pinIngresado += num;
+                document.querySelectorAll('.dot').forEach((d, i) => i < pinIngresado.length ? d.classList.add('filled') : null);
+                if(pinIngresado.length === 4) setTimeout(validarPin, 200);
+            }
+        }
+        function clearPin() {
+            pinIngresado = "";
+            document.querySelectorAll('.dot').forEach(d => d.classList.remove('filled'));
+        }
+        function validarPin() {
+            let nombreUsuario = "";
+            
+            if(pinIngresado === PIN_DANNY) { nombreUsuario = "Danny"; }
+            else if(pinIngresado === PIN_LISSY) { nombreUsuario = "Lissy"; }
+
+            if(nombreUsuario !== "") {
+                document.getElementById('saludo-texto').innerText = "¡Hola " + nombreUsuario + "!";
+                document.getElementById('login-screen').style.opacity = '0';
+                setTimeout(() => { document.getElementById('login-screen').style.display = 'none'; document.getElementById('app-content').style.display = 'block'; iniciarApp(); }, 500);
+            } else { 
+                alert("PIN Incorrecto. Intenta de nuevo."); 
+                clearPin(); 
+            }
+        }
+
+        // --- NÚCLEO DE LA APP ---
+        async function iniciarApp() {
+            mostrarLoader(true);
+            try {
+                const resDolar = await fetch('https://dolarapi.com/v1/dolares/oficial');
+                const dataDolar = await resDolar.json();
+                dolarBNA = dataDolar.venta;
+            } catch(e) { console.log('Sin internet para dolar'); }
+            
+            await cargarDatosDesdeGoogle();
+            mostrarLoader(false);
+        }
+
+        async function cargarDatosDesdeGoogle() {
+            try {
+                const res = await fetch(SCRIPT_URL);
+                appData = await res.json();
+                
+                document.getElementById('ingresoOrigen').innerHTML = appData.origenesIngreso.map(o => `<option value="${o}">${o}</option>`).join('');
+                document.getElementById('gastoCategoria').innerHTML = appData.categoriasGasto.map(c => `<option value="${c}">${c}</option>`).join('');
+                
+                procesarPantalla();
+            } catch(e) { alert("Error conectando a tu hoja de Google."); }
+        }
+
+        function procesarPantalla() {
+            let saldoTotal = 0;
+            let gastoHoy = 0;
+            const hoyStr = new Date().toLocaleDateString('es-AR');
+            const mesActual = new Date().getMonth();
+            let ingresosPorCanal = {}; 
+
+            appData.transacciones.forEach(t => {
+                const fechaT = new Date(t[1]);
+                const tipo = t[2];
+                const categoria = t[3];
+                const monto = parseFloat(t[4]);
+
+                if (tipo === 'Ingreso') {
+                    saldoTotal += monto;
+                    if (fechaT.getMonth() === mesActual) {
+                        ingresosPorCanal[categoria] = (ingresosPorCanal[categoria] || 0) + monto;
+                    }
+                } else if (tipo === 'Gasto') {
+                    saldoTotal -= monto;
+                    if (fechaT.toLocaleDateString('es-AR') === hoyStr) {
+                        gastoHoy += monto;
+                    }
+                }
+            });
+
+            document.getElementById('saldo-pesos').innerText = fmtARS(saldoTotal);
+            document.getElementById('saldo-usd').innerText = `(USD ${(saldoTotal/dolarBNA).toFixed(2)} - BNA: $${dolarBNA})`;
+            document.getElementById('gasto-hoy').innerText = "-" + fmtARS(gastoHoy);
+
+            actualizarGrafico(ingresosPorCanal);
+
+            const listaDiv = document.getElementById('lista-vencimientos');
+            listaDiv.innerHTML = '';
+            const fechaHoy = new Date();
+
+            appData.vencimientos.forEach(v => {
+                if(v[5] === 'SI') return; 
+                
+                const id = v[0];
+                const fechaPago = new Date(v[1]);
+                const servicio = v[2];
+                const monto = v[3];
+                const cuenta = v[4];
+
+                const difTiempo = fechaPago.getTime() - fechaHoy.getTime();
+                const diasFaltan = Math.ceil(difTiempo / (1000 * 3600 * 24));
+                
+                let esUrgente = diasFaltan <= 4 && diasFaltan >= 0;
+                let cartelUrgente = esUrgente ? `<div class="urgente-badge">¡Vence en ${diasFaltan} días!</div>` : '';
+                if (diasFaltan < 0) cartelUrgente = `<div class="urgente-badge">¡VENCIDO HACE ${Math.abs(diasFaltan)} DÍAS!</div>`;
+
+                listaDiv.innerHTML += `
+                    <div class="bill-card ${esUrgente || diasFaltan < 0 ? 'urgente' : ''}">
+                        <div class="bill-info">
+                            ${cartelUrgente}
+                            <div class="bill-name">${servicio}</div>
+                            <div class="bill-date">Vence: ${fechaPago.toLocaleDateString('es-AR')} | ${cuenta}</div>
+                        </div>
+                        <div class="bill-amount">${fmtARS(monto)}</div>
+                        <button class="pay-btn" onclick="pagarServicio(${id}, '${servicio}', ${monto})">✓</button>
+                    </div>
+                `;
+            });
+            if(listaDiv.innerHTML === '') listaDiv.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding-bottom:20px;">No hay deudas pendientes 🎉</p>';
+        }
+
+        async function enviarDatos(paquete) {
+            mostrarLoader(true);
+            cerrarModals();
+            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(paquete) });
+            
+            setTimeout(async () => {
+                await cargarDatosDesdeGoogle();
+                mostrarLoader(false);
+            }, 1500);
+        }
+
+        function guardar(tipo) {
+            const origen = tipo === 'Ingreso' ? document.getElementById('ingresoOrigen').value : document.getElementById('gastoCategoria').value;
+            const montoStr = tipo === 'Ingreso' ? document.getElementById('ingresoMonto').value : document.getElementById('gastoMonto').value;
+            if(!montoStr) return alert('Pon un monto');
+            
+            enviarDatos({ action: 'addTransaction', tipo: tipo, categoria: origen, monto: montoStr });
+            
+            document.getElementById('ingresoMonto').value = ''; document.getElementById('gastoMonto').value = '';
+        }
+
+        function guardarVencimiento() {
+            const nombre = document.getElementById('vencNombre').value;
+            const fecha = document.getElementById('vencFecha').value;
+            const monto = document.getElementById('vencMonto').value;
+            const cuenta = document.getElementById('vencCuenta').value;
+            if(!nombre || !fecha || !monto) return alert('Completa todos los datos');
+            
+            enviarDatos({ action: 'addVencimiento', fecha: fecha, servicio: nombre, monto: monto, cuenta: cuenta });
+        }
+
+        function pagarServicio(id, nombre, monto) {
+            if(confirm(`¿Confirmas que ya pagaste ${nombre}? Se restarán ${fmtARS(monto)} de tu saldo.`)){
+                enviarDatos({ action: 'pagarVencimiento', id: id });
+            }
+        }
+
+        function actualizarGrafico(datos) {
+            const ctx = document.getElementById('ingresosChart').getContext('2d');
+            const etiquetas = Object.keys(datos);
+            const valores = Object.values(datos);
+            const colores = ['#00b894', '#0984e3', '#d63031', '#e17055', '#6c5ce7', '#fdcb6e']; 
+
+            if(chartInstance) chartInstance.destroy(); 
+            
+            if(etiquetas.length === 0) { etiquetas.push("Sin ingresos aún"); valores.push(1); colores[0] = '#dfe6e9'; }
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels: etiquetas, datasets: [{ data: valores, backgroundColor: colores, borderWidth: 0 }] },
+                options: { maintainAspectRatio: false, responsive: true, cutout: '70%', plugins: { legend: { position: 'bottom', labels: {color: 'gray'} } } }
+            });
+        }
+
+        function abrirModal(id) { document.getElementById(id).classList.add('active'); }
+        function cerrarModals() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
+        function toggleTheme() { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'); }
+        function mostrarLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
+        
+        function toggleVisibilidad() {
+            saldoVisible = !saldoVisible;
+            document.getElementById('saldo-pesos').innerText = saldoVisible ? fmtARS(appData.transacciones.filter(t=>t[2]==='Ingreso').reduce((a,b)=>a+parseFloat(b[4]),0) - appData.transacciones.filter(t=>t[2]==='Gasto').reduce((a,b)=>a+parseFloat(b[4]),0)) : "•••••••";
+            document.getElementById('saldo-usd').style.opacity = saldoVisible ? "1" : "0";
+            document.getElementById('gasto-hoy').innerText = saldoVisible ? "Calculado..." : "••••";
+            if(saldoVisible) procesarPantalla(); 
+        }
+    </script>
+</body>
+</html>
