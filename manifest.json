@@ -1,0 +1,16 @@
+{
+  "name": "Finanzas Pareja",
+  "short_name": "Finanzas",
+  "description": "App de Finanzas de Lissy y Danny",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1e1e24",
+  "theme_color": "#0984e3",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2933/2933116.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
