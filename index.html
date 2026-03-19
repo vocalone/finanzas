@@ -12,7 +12,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* COLORES Y FONDOS (Agregué --input-bg para aclarar los espacios de rellenar) */
+        /* COLORES Y FONDOS */
         :root[data-theme="light"] { --bg: #f4f7f6; --surface: #ffffff; --input-bg: #f4f7f6; --text: #2d3436; --text-muted: #636e72; --border: #dfe6e9; --blue: #0984e3; --green: #00b894; --red: #d63031; --orange: #e17055; }
         :root[data-theme="dark"] { --bg: #1e1e24; --surface: #2b2b36; --input-bg: #3f3f4e; --text: #f5f6fa; --text-muted: #a4b0be; --border: #3d3d4e; --blue: #74b9ff; --green: #55efc4; --red: #ff7675; --orange: #fab1a0; }
         
@@ -44,7 +44,7 @@
         .btn-icon { background: var(--surface); border: 1px solid var(--border); width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; color: var(--text); }
         .header-buttons { display: flex; gap: 10px; }
 
-        /* GRÁFICO (Zona Deslizable) */
+        /* GRÁFICO */
         .chart-section { margin: 10px 20px; background: var(--surface); padding: 20px; border-radius: 25px; text-align: center; overflow: hidden;}
         .chart-container { position: relative; height: 220px; width: 100%; max-width: 300px; margin: 10px auto 0; display: flex; justify-content: center; }
         .swipe-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 15px; letter-spacing: 1px;}
@@ -71,7 +71,7 @@
         .bill-amount { font-weight: bold; font-size: 1.05rem; text-align: right; }
         .pay-btn { background: var(--border); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 16px; cursor: pointer; margin-left: 15px; }
 
-        /* MODALS (CUADROS EMERGENTES) */
+        /* MODALS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: flex-end; }
         .modal.active { display: flex; }
         .modal-content { background: var(--bg); width: 100%; max-width: 500px; border-radius: 20px 20px 0 0; padding: 25px; animation: slideUp 0.3s ease-out; max-height: 90vh; overflow-y: auto; position: relative; }
@@ -81,9 +81,7 @@
         .close-btn { position: absolute; top: 20px; right: 20px; font-size: 32px; color: var(--text-muted); cursor: pointer; line-height: 1; font-weight: bold;}
         
         .form-group { margin-bottom: 18px; }
-        /* LETRAS MÁS GRANDES */
         .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 1.05rem; color: var(--text-muted); }
-        /* FONDOS MÁS CLAROS */
         .form-group input, .form-group select { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 1rem; }
         
         .btn-submit { width: 100%; padding: 16px; background: var(--blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
@@ -92,7 +90,6 @@
         
         .loader { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 15px 30px; border-radius: 30px; z-index: 3000; font-weight: bold; text-align:center;}
         
-        /* FILTROS HISTORIAL */
         .filtro-row { display: flex; gap: 10px; margin-bottom: 15px; }
         .filtro-row select { padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); flex: 1; font-weight: bold;}
     </style>
@@ -148,7 +145,6 @@
             </div>
         </header>
 
-        <!-- ZONA DEL GRÁFICO -->
         <section class="chart-section" id="zona-swipe">
             <h3 style="font-size: 0.9rem; color: var(--text-muted); text-align:left;">Ingresos por Canal (Este mes)</h3>
             <div class="chart-container">
@@ -177,8 +173,8 @@
         <div id="lista-vencimientos"></div>
     </div>
 
-    <!-- MODAL INGRESO -->
-    <div class="modal" id="modalIngreso">
+    <!-- MODALES (Con el clic afuera "blindado" para iPhone) -->
+    <div class="modal" id="modalIngreso" onclick="if(event.target===this) cerrarModals()">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModals()">×</span>
             <h2 style="margin-bottom: 20px;">Registrar Ingreso</h2>
@@ -188,8 +184,7 @@
         </div>
     </div>
 
-    <!-- MODAL GASTO -->
-    <div class="modal" id="modalGasto">
+    <div class="modal" id="modalGasto" onclick="if(event.target===this) cerrarModals()">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModals()">×</span>
             <h2 style="margin-bottom: 20px;">Registrar Gasto</h2>
@@ -209,8 +204,7 @@
         </div>
     </div>
 
-    <!-- MODAL VENCIMIENTO -->
-    <div class="modal" id="modalVencimiento">
+    <div class="modal" id="modalVencimiento" onclick="if(event.target===this) cerrarModals()">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModals()">×</span>
             <h2 style="margin-bottom: 20px;">Nuevo Vencimiento</h2>
@@ -237,8 +231,7 @@
         </div>
     </div>
 
-    <!-- MODAL HISTORIAL -->
-    <div class="modal" id="modalHistorial">
+    <div class="modal" id="modalHistorial" onclick="if(event.target===this) cerrarModals()">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModals()">×</span>
             <h2 style="margin-bottom: 20px;">Historial Detallado</h2>
@@ -260,8 +253,7 @@
         </div>
     </div>
 
-    <!-- MODAL CONFIGURACIÓN -->
-    <div class="modal" id="modalConfig">
+    <div class="modal" id="modalConfig" onclick="if(event.target===this) cerrarModals()">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModals()">×</span>
             <h2 style="margin-bottom: 20px;">Configuración</h2>
@@ -294,15 +286,6 @@
         let chartInstance = null; let graficoEsCirculo = true; let datosGraficoGlobal = {}; 
 
         const fmtARS = (num) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(num);
-
-        // --- CERRAR MODALES AL TOCAR AFUERA (REPARADO PARA iPHONE) ---
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    cerrarModals();
-                }
-            });
-        });
 
         // --- SISTEMA DE PIN ---
         function pressPin(num) {
@@ -410,4 +393,143 @@
 
         function guardar(tipo) {
             const origen = tipo === 'Ingreso' ? document.getElementById('ingresoOrigen').value : document.getElementById('gastoCategoria').value;
-            const montoStr = tipo === 'Ingreso' ? document.getElementById('ingresoMonto').value : document.getElementBy
+            const montoStr = tipo === 'Ingreso' ? document.getElementById('ingresoMonto').value : document.getElementById('gastoMonto').value;
+            if(!montoStr) return alert('Pon un monto');
+            
+            let metodoFinal = "";
+            if(tipo === 'Gasto') {
+                const met = document.getElementById('gastoMetodo').value;
+                const tarj = document.getElementById('gastoTarjeta').value;
+                metodoFinal = met + (tarj ? ' (' + tarj + ')' : '');
+            }
+
+            enviarDatos({ action: 'addTransaction', tipo: tipo, categoria: origen, monto: montoStr, metodo: metodoFinal });
+            
+            document.getElementById('ingresoMonto').value = ''; document.getElementById('gastoMonto').value = ''; document.getElementById('gastoTarjeta').value = '';
+        }
+
+        function guardarVencimiento() {
+            const nombre = document.getElementById('vencNombre').value; 
+            const fecha = document.getElementById('vencFecha').value; 
+            const monto = document.getElementById('vencMonto').value; 
+            
+            const met = document.getElementById('vencMetodo').value;
+            const tarj = document.getElementById('vencTarjeta').value;
+            const cuentaFinal = met + (tarj ? ' (' + tarj + ')' : '');
+            
+            const recurrente = document.getElementById('vencRecurrente').checked ? 'SI' : 'NO';
+
+            if(!nombre || !fecha || !monto) return alert('Faltan datos'); 
+            enviarDatos({ action: 'addVencimiento', fecha: fecha, servicio: nombre, monto: monto, cuenta: cuentaFinal, recurrente: recurrente });
+            
+            document.getElementById('vencNombre').value = ''; document.getElementById('vencMonto').value = ''; document.getElementById('vencTarjeta').value = '';
+        }
+
+        function pagarServicio(id, nombre, monto) {
+            if(confirm(`¿Ya pagaste ${nombre}? Se restarán ${fmtARS(monto)} del saldo.`)){ enviarDatos({ action: 'pagarVencimiento', id: id }); }
+        }
+
+        // --- SISTEMA DE HISTORIAL ---
+        function abrirHistorial(tipoDefecto) {
+            document.getElementById('hist-tipo').value = tipoDefecto;
+            document.getElementById('hist-tiempo').value = 'Hoy';
+            abrirModal('modalHistorial');
+            actualizarHistorial();
+        }
+
+        function actualizarHistorial() {
+            const tipo = document.getElementById('hist-tipo').value;
+            const tiempo = document.getElementById('hist-tiempo').value;
+            const div = document.getElementById('lista-historial');
+            div.innerHTML = '';
+
+            const hoy = new Date();
+            const hoyStr = hoy.toLocaleDateString('es-AR');
+            const mesActual = hoy.getMonth(); const anioActual = hoy.getFullYear();
+
+            let filtrados = appData.transacciones.filter(t => {
+                if(t[2] !== tipo) return false; 
+                const d = new Date(t[1]);
+                if(tiempo === 'Hoy') { return d.toLocaleDateString('es-AR') === hoyStr; } 
+                else if(tiempo === 'Semana') { const diffDays = Math.ceil(Math.abs(hoy - d) / (1000 * 60 * 60 * 24)); return diffDays <= 7; } 
+                else if(tiempo === 'Mes') { return d.getMonth() === mesActual && d.getFullYear() === anioActual; }
+                return true;
+            });
+
+            filtrados.reverse(); 
+
+            let total = 0;
+            filtrados.forEach(f => {
+                total += parseFloat(f[4]);
+                const metodo = f[5] ? ` | 💳 ${f[5]}` : ''; 
+                div.innerHTML += `
+                    <div class="bill-card" style="padding:10px; margin-bottom:8px;">
+                        <div class="bill-info">
+                            <div class="bill-name" style="font-size:0.95rem;">${f[3]}</div>
+                            <div class="bill-date">${new Date(f[1]).toLocaleDateString('es-AR')}${metodo}</div>
+                        </div>
+                        <div class="bill-amount" style="font-size:1rem; color:${tipo==='Ingreso'?'var(--green)':'var(--text)'}">${fmtARS(f[4])}</div>
+                    </div>`;
+            });
+
+            if(filtrados.length === 0) div.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:0.9rem; padding:20px;">No hay registros en esta fecha.</p>';
+            
+            document.getElementById('hist-total').innerText = fmtARS(total);
+            document.getElementById('hist-total').style.color = tipo === 'Ingreso' ? 'var(--green)' : 'var(--text)';
+        }
+
+        // --- SWIPE GRÁFICO ---
+        let touchstartX = 0; let touchendX = 0;
+        const zonaSwipe = document.getElementById('zona-swipe');
+        
+        zonaSwipe.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
+        zonaSwipe.addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; manejarSwipe(); }, {passive: true});
+
+        function manejarSwipe() {
+            if (touchendX < touchstartX - 40) { graficoEsCirculo = false; dibujarGrafico(); } 
+            if (touchendX > touchstartX + 40) { graficoEsCirculo = true; dibujarGrafico(); }  
+        }
+
+        function dibujarGrafico() {
+            const ctx = document.getElementById('ingresosChart').getContext('2d');
+            const etiquetas = Object.keys(datosGraficoGlobal); const valores = Object.values(datosGraficoGlobal);
+            const colores = ['#0984e3', '#00b894', '#d63031', '#e17055', '#6c5ce7', '#fdcb6e']; 
+
+            if(chartInstance) chartInstance.destroy(); 
+            if(etiquetas.length === 0) { etiquetas.push("Sin ingresos aún"); valores.push(1); colores[0] = '#dfe6e9'; }
+
+            document.getElementById('dot1').classList.toggle('active', graficoEsCirculo);
+            document.getElementById('dot2').classList.toggle('active', !graficoEsCirculo);
+
+            chartInstance = new Chart(ctx, {
+                type: graficoEsCirculo ? 'doughnut' : 'bar',
+                data: { labels: etiquetas, datasets: [{ label: 'Ingresos ($)', data: valores, backgroundColor: colores, borderWidth: 0, borderRadius: graficoEsCirculo?0:8 }] },
+                options: { 
+                    maintainAspectRatio: false, responsive: true, cutout: graficoEsCirculo ? '70%' : undefined, 
+                    plugins: { legend: { display: graficoEsCirculo, position: 'bottom', labels: {color: 'gray'} } },
+                    scales: graficoEsCirculo ? undefined : { x: { ticks:{color:'gray'}, grid:{display:false} }, y: { ticks:{color:'gray'}, grid:{color:'#3d3d4e'} } }
+                }
+            });
+        }
+
+        function abrirModal(id) { document.getElementById(id).classList.add('active'); }
+        function cerrarModals() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
+        function mostrarLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
+        function toggleTheme() { 
+            const html = document.documentElement; const nuevoTema = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', nuevoTema); localStorage.setItem('tema_app', nuevoTema);
+            document.getElementById('btn-theme').innerText = nuevoTema === 'dark' ? '☀️' : '🌙';
+        }
+        function toggleVisibilidad() {
+            saldoVisible = !saldoVisible;
+            document.getElementById('saldo-pesos').innerText = saldoVisible ? fmtARS(appData.transacciones.filter(t=>t[2]==='Ingreso').reduce((a,b)=>a+parseFloat(b[4]),0) - appData.transacciones.filter(t=>t[2]==='Gasto').reduce((a,b)=>a+parseFloat(b[4]),0)) : "•••••••";
+            document.getElementById('saldo-usd').style.opacity = saldoVisible ? "1" : "0";
+            
+            const btnHoy = document.getElementById('gasto-hoy');
+            btnHoy.innerText = saldoVisible ? "Calculando..." : "••••";
+            if(!saldoVisible) btnHoy.style.color = "var(--text-muted)";
+            if(saldoVisible) procesarPantalla(); 
+        }
+    </script>
+</body>
+</html>
