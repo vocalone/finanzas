@@ -12,18 +12,16 @@
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* COLORES Y FONDOS */
+        /* COLORES */
         :root[data-theme="light"] { --bg: #f4f7f6; --surface: #ffffff; --input-bg: #f4f7f6; --text: #2d3436; --text-muted: #636e72; --border: #dfe6e9; --blue: #0984e3; --green: #00b894; --red: #d63031; --orange: #e17055; }
         :root[data-theme="dark"] { --bg: #1e1e24; --surface: #2b2b36; --input-bg: #3f3f4e; --text: #f5f6fa; --text-muted: #a4b0be; --border: #3d3d4e; --blue: #74b9ff; --green: #55efc4; --red: #ff7675; --orange: #fab1a0; }
         
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); color: var(--text); transition: background 0.3s; padding-bottom: 80px; }
 
-        /* HEADER */
         .app-title { text-align: center; padding: 25px 0 0; font-size: 1.3rem; font-weight: 800; color: var(--blue); letter-spacing: 1px;}
         .saludo-usuario { text-align: center; font-size: 1.1rem; color: var(--text-muted); margin-bottom: 5px;}
 
-        /* PANTALLA PIN */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--blue); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; transition: opacity 0.5s; }
         .pin-dots { display: flex; gap: 15px; margin: 30px 0; }
         .dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid white; }
@@ -32,7 +30,6 @@
         .key { width: 75px; height: 75px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); display: flex; justify-content: center; align-items: center; font-size: 28px; color: white; background: transparent; cursor: pointer; }
         .key:active { background: rgba(255,255,255,0.4); }
 
-        /* CABECERA */
         .header { padding: 10px 20px 15px; display: flex; justify-content: space-between; align-items: flex-start; }
         .saldo-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
         .saldo-wrapper { display: flex; align-items: center; gap: 10px; }
@@ -44,7 +41,6 @@
         .btn-icon { background: var(--surface); border: 1px solid var(--border); width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; color: var(--text); }
         .header-buttons { display: flex; gap: 10px; }
 
-        /* GRÁFICO */
         .chart-section { margin: 10px 20px; background: var(--surface); padding: 20px; border-radius: 25px; text-align: center; overflow: hidden;}
         .chart-container { position: relative; height: 220px; width: 100%; max-width: 300px; margin: 10px auto 0; display: flex; justify-content: center; }
         .swipe-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 15px; letter-spacing: 1px;}
@@ -52,7 +48,6 @@
         .s-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
         .s-dot.active { background: var(--blue); }
 
-        /* BOTONES ACCIÓN */
         .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 20px; }
         .action-btn { background: var(--surface); border: none; padding: 15px 5px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; color: var(--text); font-weight: 600; font-size: 0.9rem; }
         .action-btn .icon-bg { width: 45px; height: 45px; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 20px; }
@@ -60,16 +55,15 @@
         .btn-gasto .icon-bg { background: rgba(214, 48, 49, 0.15); color: var(--red); }
         .btn-vence .icon-bg { background: rgba(9, 132, 227, 0.15); color: var(--blue); }
 
-        /* VENCIMIENTOS */
         .section-title { margin: 25px 20px 10px; font-size: 1.1rem; font-weight: bold; }
-        .bill-card { margin: 0 20px 12px; background: var(--surface); border-radius: 18px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--blue); }
+        .bill-card { margin: 0 20px 12px; background: var(--surface); border-radius: 18px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--blue); cursor: pointer;}
         .bill-card.urgente { border-left: 5px solid var(--red); background: rgba(214, 48, 49, 0.05); }
         .urgente-badge { font-size: 0.7rem; background: var(--red); color: white; padding: 2px 6px; border-radius: 10px; font-weight: bold; margin-bottom: 3px; display: inline-block;}
-        .bill-info { flex: 1; }
+        .bill-info { flex: 1; pointer-events: none;}
         .bill-name { font-weight: bold; font-size: 1rem; }
         .bill-date { font-size: 0.8rem; color: var(--text-muted); }
-        .bill-amount { font-weight: bold; font-size: 1.05rem; text-align: right; }
-        .pay-btn { background: var(--border); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 16px; cursor: pointer; margin-left: 15px; }
+        .bill-amount { font-weight: bold; font-size: 1.05rem; text-align: right; pointer-events: none;}
+        .pay-btn { background: var(--border); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 16px; cursor: pointer; margin-left: 15px; z-index: 10; position: relative;}
 
         /* MODALS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: flex-end; }
@@ -77,7 +71,6 @@
         .modal-content { background: var(--bg); width: 100%; max-width: 500px; border-radius: 20px 20px 0 0; padding: 25px; animation: slideUp 0.3s ease-out; max-height: 90vh; overflow-y: auto; position: relative; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
-        /* LA CRUZ (X) PARA CERRAR */
         .close-btn { position: absolute; top: 20px; right: 20px; font-size: 32px; color: var(--text-muted); cursor: pointer; line-height: 1; font-weight: bold;}
         
         .form-group { margin-bottom: 18px; }
@@ -92,6 +85,16 @@
         
         .filtro-row { display: flex; gap: 10px; margin-bottom: 15px; }
         .filtro-row select { padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); flex: 1; font-weight: bold;}
+
+        /* ESTILOS DEL CALENDARIO TIPO iOS */
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; font-size: 1.2rem; }
+        .cal-btn { background: var(--surface); border: 1px solid var(--border); padding: 5px 15px; border-radius: 10px; cursor: pointer; color: var(--text);}
+        .cal-days-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .cal-day { aspect-ratio: 1; display: flex; justify-content: center; align-items: center; border-radius: 50%; cursor: pointer; font-size: 1rem; }
+        .cal-day:active { background: var(--border); }
+        .cal-day.empty { visibility: hidden; }
+        .cal-day.today { background: var(--red); color: white; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -103,18 +106,10 @@
             <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
         </div>
         <div class="keypad">
-            <button class="key" onclick="pressPin(1)">1</button>
-            <button class="key" onclick="pressPin(2)">2</button>
-            <button class="key" onclick="pressPin(3)">3</button>
-            <button class="key" onclick="pressPin(4)">4</button>
-            <button class="key" onclick="pressPin(5)">5</button>
-            <button class="key" onclick="pressPin(6)">6</button>
-            <button class="key" onclick="pressPin(7)">7</button>
-            <button class="key" onclick="pressPin(8)">8</button>
-            <button class="key" onclick="pressPin(9)">9</button>
-            <div></div>
-            <button class="key" onclick="pressPin(0)">0</button>
-            <button class="key" onclick="clearPin()" style="font-size:16px;">Borrar</button>
+            <button class="key" onclick="pressPin(1)">1</button><button class="key" onclick="pressPin(2)">2</button><button class="key" onclick="pressPin(3)">3</button>
+            <button class="key" onclick="pressPin(4)">4</button><button class="key" onclick="pressPin(5)">5</button><button class="key" onclick="pressPin(6)">6</button>
+            <button class="key" onclick="pressPin(7)">7</button><button class="key" onclick="pressPin(8)">8</button><button class="key" onclick="pressPin(9)">9</button>
+            <div></div><button class="key" onclick="pressPin(0)">0</button><button class="key" onclick="clearPin()" style="font-size:16px;">Borrar</button>
         </div>
     </div>
 
@@ -135,7 +130,7 @@
                 </div>
                 <div class="saldo-usd" id="saldo-usd">Calculando...</div>
                 <div class="hoy-container">
-                    <span>Balance de hoy:</span>
+                    <span>Balance:</span>
                     <span class="gasto-hoy-clicable" id="gasto-hoy" onclick="abrirHistorial('Gasto')">-$ 0</span>
                 </div>
             </div>
@@ -152,8 +147,7 @@
             </div>
             <div class="swipe-hint">⬅️ Desliza para cambiar ➡️</div>
             <div class="swipe-dots">
-                <div class="s-dot active" id="dot1"></div>
-                <div class="s-dot" id="dot2"></div>
+                <div class="s-dot active" id="dot1"></div><div class="s-dot" id="dot2"></div>
             </div>
         </section>
 
@@ -164,7 +158,8 @@
             <button class="action-btn btn-gasto" onclick="abrirModal('modalGasto')">
                 <div class="icon-bg">🛒</div><div>Gasto</div>
             </button>
-            <button class="action-btn btn-vence" onclick="abrirModal('modalVencimiento')">
+            <!-- BOTÓN VENCERÁ AHORA ABRE EL CALENDARIO PRIMERO -->
+            <button class="action-btn btn-vence" onclick="abrirCalendario()">
                 <div class="icon-bg">📅</div><div>Vencerá</div>
             </button>
         </div>
@@ -173,30 +168,31 @@
         <div id="lista-vencimientos"></div>
     </div>
 
-    <!-- MODALES (Con el clic afuera "blindado" para iPhone) -->
+    <!-- MODAL INGRESO -->
     <div class="modal" id="modalIngreso" onclick="if(event.target===this) cerrarModals()">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModals()">×</span>
             <h2 style="margin-bottom: 20px;">Registrar Ingreso</h2>
-            <div class="form-group"><label>¿De dónde entró?</label><select id="ingresoOrigen"></select></div>
+            <div class="form-group"><label>Categoría</label><select id="ingresoOrigen"></select></div>
+            <div class="form-group"><label>Detalle (Ej. Clase, YouTube...)</label><input type="text" id="ingresoDetalle" placeholder="Detalle aquí"></div>
             <div class="form-group"><label>Monto ($)</label><input type="number" id="ingresoMonto" placeholder="Ej. 100000"></div>
             <button class="btn-submit" onclick="guardar('Ingreso')">Guardar Ingreso</button>
         </div>
     </div>
 
+    <!-- MODAL GASTO -->
     <div class="modal" id="modalGasto" onclick="if(event.target===this) cerrarModals()">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModals()">×</span>
             <h2 style="margin-bottom: 20px;">Registrar Gasto</h2>
             <div class="form-group"><label>Categoría</label><select id="gastoCategoria"></select></div>
+            <div class="form-group"><label>Detalle (Ej. Netflix, Súper...)</label><input type="text" id="gastoDetalle" placeholder="Detalle aquí"></div>
             <div class="form-group"><label>Monto ($)</label><input type="number" id="gastoMonto" placeholder="Ej. 15000"></div>
             
             <div class="form-group">
                 <label>Método de Pago</label>
                 <div style="display:flex; gap:10px;">
-                    <select id="gastoMetodo" style="flex:2;">
-                        <option>Débito</option><option>Crédito</option><option>Billetera Virtual</option><option>Efectivo</option>
-                    </select>
+                    <select id="gastoMetodo" style="flex:2;"><option>Débito</option><option>Crédito</option><option>Billetera Virtual</option><option>Efectivo</option></select>
                     <input type="number" id="gastoTarjeta" placeholder="Últimos 4 núm" style="flex:1;">
                 </div>
             </div>
@@ -204,6 +200,25 @@
         </div>
     </div>
 
+    <!-- MODAL CALENDARIO (NUEVO) -->
+    <div class="modal" id="modalCalendario" onclick="if(event.target===this) cerrarModals()">
+        <div class="modal-content">
+            <span class="close-btn" onclick="cerrarModals()">×</span>
+            <h2 style="margin-bottom: 20px;">Elegir Fecha de Vencimiento</h2>
+            
+            <div class="cal-header">
+                <button class="cal-btn" onclick="cambiarMes(-1)">◀</button>
+                <span id="cal-mes-anio"></span>
+                <button class="cal-btn" onclick="cambiarMes(1)">▶</button>
+            </div>
+            <div class="cal-days-header">
+                <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
+            </div>
+            <div class="cal-grid" id="cal-grid"></div>
+        </div>
+    </div>
+
+    <!-- MODAL VENCIMIENTO -->
     <div class="modal" id="modalVencimiento" onclick="if(event.target===this) cerrarModals()">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModals()">×</span>
@@ -215,9 +230,7 @@
             <div class="form-group">
                 <label>Se pagará con:</label>
                 <div style="display:flex; gap:10px;">
-                    <select id="vencMetodo" style="flex:2;">
-                        <option>Débito</option><option>Crédito</option><option>Billetera Virtual</option><option>Efectivo</option>
-                    </select>
+                    <select id="vencMetodo" style="flex:2;"><option>Débito</option><option>Crédito</option><option>Billetera Virtual</option><option>Efectivo</option></select>
                     <input type="number" id="vencTarjeta" placeholder="Últimos 4 núm" style="flex:1;">
                 </div>
             </div>
@@ -231,6 +244,21 @@
         </div>
     </div>
 
+    <!-- MODAL VER VENCIMIENTO EN GRANDE (NUEVO) -->
+    <div class="modal" id="modalVerVencimiento" onclick="if(event.target===this) cerrarModals()">
+        <div class="modal-content" style="text-align:center;">
+            <span class="close-btn" onclick="cerrarModals()">×</span>
+            <div style="font-size: 3rem; margin-bottom: 10px;">📅</div>
+            <h2 id="ver-venc-nombre" style="font-size: 1.8rem; margin-bottom: 5px; color: var(--text);">Nombre</h2>
+            <p id="ver-venc-fecha" style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 15px;">Fecha</p>
+            <p id="ver-venc-cuenta" style="font-size: 1rem; color: var(--text-muted); margin-bottom: 20px;">Cuenta</p>
+            <h1 id="ver-venc-monto" style="font-size: 2.5rem; color: var(--red); margin-bottom: 30px;">$0</h1>
+            
+            <button class="btn-submit" id="btn-pagar-venc" style="background:var(--green);">Pagar Ahora ✓</button>
+        </div>
+    </div>
+
+    <!-- MODAL HISTORIAL -->
     <div class="modal" id="modalHistorial" onclick="if(event.target===this) cerrarModals()">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModals()">×</span>
@@ -241,18 +269,18 @@
                     <option value="Ingreso">Ver Ingresos</option>
                 </select>
                 <select id="hist-tiempo" onchange="actualizarHistorial()">
-                    <option value="Hoy">De Hoy</option>
+                    <option value="Hoy">Últimas 24 hs</option>
                     <option value="Semana">Últimos 7 días</option>
                     <option value="Mes">De este Mes</option>
+                    <option value="3Meses">Últimos 3 Meses</option>
                 </select>
             </div>
-            
             <div style="text-align:center; font-size:1.5rem; font-weight:bold; margin-bottom:15px;" id="hist-total">$ 0,00</div>
-            
             <div id="lista-historial" style="max-height: 300px; overflow-y: auto;"></div>
         </div>
     </div>
 
+    <!-- MODAL CONFIGURACIÓN -->
     <div class="modal" id="modalConfig" onclick="if(event.target===this) cerrarModals()">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModals()">×</span>
@@ -271,7 +299,7 @@
 
     <script>
         // --- PEGA AQUÍ TU LINK DE APPS SCRIPT ---
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMJL3S7-U6V13xhy-W-15H4NP9z9FgnFU70wW8aGy_awC769LDcOLJ8kkkiJ19RdPT/exec'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwI3HFAL3akUPBItD-NSGdm6eDHnHU9TP5bHuqROl9cWmqGMcmHnxHI8i6hYJcXNvi_/exec'; 
 
         // MEMORIA Y VARIABLES
         let PIN_DANNY = localStorage.getItem('pin_danny') || "1090";
@@ -286,6 +314,43 @@
         let chartInstance = null; let graficoEsCirculo = true; let datosGraficoGlobal = {}; 
 
         const fmtARS = (num) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(num);
+
+        // --- CALENDARIO LÓGICA ---
+        let fechaActualCal = new Date();
+        function abrirCalendario() {
+            renderCalendario();
+            abrirModal('modalCalendario');
+        }
+        function cambiarMes(dir) {
+            fechaActualCal.setMonth(fechaActualCal.getMonth() + dir);
+            renderCalendario();
+        }
+        function renderCalendario() {
+            const grid = document.getElementById('cal-grid');
+            grid.innerHTML = '';
+            const mes = fechaActualCal.getMonth();
+            const anio = fechaActualCal.getFullYear();
+            const mesesStr = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+            document.getElementById('cal-mes-anio').innerText = mesesStr[mes] + " " + anio;
+
+            const primerDia = new Date(anio, mes, 1).getDay();
+            const diasEnMes = new Date(anio, mes + 1, 0).getDate();
+            const hoy = new Date();
+
+            for(let i=0; i<primerDia; i++) { grid.innerHTML += `<div class="cal-day empty"></div>`; }
+            
+            for(let i=1; i<=diasEnMes; i++) {
+                let esHoy = (i === hoy.getDate() && mes === hoy.getMonth() && anio === hoy.getFullYear()) ? 'today' : '';
+                grid.innerHTML += `<div class="cal-day ${esHoy}" onclick="seleccionarDia(${anio}, ${mes}, ${i})">${i}</div>`;
+            }
+        }
+        function seleccionarDia(anio, mes, dia) {
+            // Formatear a YYYY-MM-DD para el input
+            const fechaStr = `${anio}-${String(mes+1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+            cerrarModals();
+            document.getElementById('vencFecha').value = fechaStr;
+            abrirModal('modalVencimiento');
+        }
 
         // --- SISTEMA DE PIN ---
         function pressPin(num) {
@@ -316,8 +381,8 @@
 
         function iniciarReset() {
             let pinSeguridad = prompt("SEGURIDAD: Ingresa tu PIN actual para continuar:");
-            if(pinSeguridad !== PIN_DANNY && pinSeguridad !== PIN_LISSY) { return alert("PIN Incorrecto. Operación cancelada."); }
-            let confirmacion = confirm("¿ESTÁS SEGURO?\n\nSe borrarán TODOS los datos.\n\nElige 'Aceptar' para borrar todo o 'Cancelar' para salir.");
+            if(pinSeguridad !== PIN_DANNY && pinSeguridad !== PIN_LISSY) { return alert("PIN Incorrecto."); }
+            let confirmacion = confirm("¿ESTÁS SEGURO?\n\nSe borrarán TODOS los datos.");
             if(confirmacion) { enviarDatos({ action: 'resetApp' }); }
         }
 
@@ -340,7 +405,8 @@
 
         function procesarPantalla() {
             let saldoTotal = 0; let gastoHoy = 0;
-            const hoyStr = new Date().toLocaleDateString('es-AR'); const mesActual = new Date().getMonth();
+            const hoy = new Date();
+            const hoyStr = hoy.toLocaleDateString('es-AR'); const mesActual = hoy.getMonth();
             datosGraficoGlobal = {}; 
 
             appData.transacciones.forEach(t => {
@@ -349,7 +415,9 @@
                     saldoTotal += monto;
                     if (fechaT.getMonth() === mesActual) { datosGraficoGlobal[categoria] = (datosGraficoGlobal[categoria] || 0) + monto; }
                 } else if (tipo === 'Gasto') {
-                    saldoTotal -= monto; if (fechaT.toLocaleDateString('es-AR') === hoyStr) { gastoHoy += monto; }
+                    saldoTotal -= monto; 
+                    // Gasto de hoy (Últimas 24 hs aproximado o mismo día calendario)
+                    if (fechaT.toLocaleDateString('es-AR') === hoyStr || (hoy.getTime() - fechaT.getTime()) <= 86400000) { gastoHoy += monto; }
                 }
             });
 
@@ -376,13 +444,25 @@
                 
                 let iconRepetir = v.length > 6 && v[6] === 'SI' ? ' 🔄' : '';
 
+                // AHORA LA TARJETA SE PUEDE TOCAR PARA VER EN GRANDE
                 listaDiv.innerHTML += `
-                    <div class="bill-card ${esUrgente || diasFaltan < 0 ? 'urgente' : ''}">
+                    <div class="bill-card ${esUrgente || diasFaltan < 0 ? 'urgente' : ''}" onclick="verVencimientoGrande(${id}, '${servicio}', '${fechaPago.toLocaleDateString('es-AR')}', '${cuenta}', ${monto})">
                         <div class="bill-info">${cartelUrgente}<div class="bill-name">${servicio}${iconRepetir}</div><div class="bill-date">Vence: ${fechaPago.toLocaleDateString('es-AR')} | ${cuenta}</div></div>
-                        <div class="bill-amount">${fmtARS(monto)}</div><button class="pay-btn" onclick="pagarServicio(${id}, '${servicio}', ${monto})">✓</button>
+                        <div class="bill-amount">${fmtARS(monto)}</div>
+                        <button class="pay-btn" onclick="event.stopPropagation(); pagarServicio(${id}, '${servicio}', ${monto})">✓</button>
                     </div>`;
             });
             if(listaDiv.innerHTML === '') listaDiv.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding-bottom:20px;">No hay deudas pendientes 🎉</p>';
+        }
+
+        function verVencimientoGrande(id, nombre, fecha, cuenta, monto) {
+            document.getElementById('ver-venc-nombre').innerText = nombre;
+            document.getElementById('ver-venc-fecha').innerText = "Vence el: " + fecha;
+            document.getElementById('ver-venc-cuenta').innerText = cuenta;
+            document.getElementById('ver-venc-monto').innerText = fmtARS(monto);
+            
+            document.getElementById('btn-pagar-venc').onclick = function() { pagarServicio(id, nombre, monto); };
+            abrirModal('modalVerVencimiento');
         }
 
         async function enviarDatos(paquete) {
@@ -393,30 +473,41 @@
 
         function guardar(tipo) {
             const origen = tipo === 'Ingreso' ? document.getElementById('ingresoOrigen').value : document.getElementById('gastoCategoria').value;
+            const detalleStr = tipo === 'Ingreso' ? document.getElementById('ingresoDetalle').value : document.getElementById('gastoDetalle').value;
             const montoStr = tipo === 'Ingreso' ? document.getElementById('ingresoMonto').value : document.getElementById('gastoMonto').value;
+            
             if(!montoStr) return alert('Pon un monto');
             
             let metodoFinal = "";
+            let paquete = { action: 'addTransaction', tipo: tipo, categoria: origen, monto: montoStr, detalle: detalleStr };
+
             if(tipo === 'Gasto') {
                 const met = document.getElementById('gastoMetodo').value;
                 const tarj = document.getElementById('gastoTarjeta').value;
                 metodoFinal = met + (tarj ? ' (' + tarj + ')' : '');
+                paquete.metodo = metodoFinal;
+
+                // DETECCIÓN INTELIGENTE DE PAGO
+                if (detalleStr.length > 2) {
+                    let match = appData.vencimientos.find(v => v[5] === 'NO' && detalleStr.toLowerCase().includes(v[2].toLowerCase()));
+                    if (match) {
+                        if(confirm(`Parece que este gasto es para pagar "${match[2]}".\n\n¿Quieres que la app lo marque como pagado en tus pendientes automáticamente?`)) {
+                            paquete.vencimientoIdToMarkPaid = match[0];
+                        }
+                    }
+                }
             }
 
-            enviarDatos({ action: 'addTransaction', tipo: tipo, categoria: origen, monto: montoStr, metodo: metodoFinal });
+            enviarDatos(paquete);
             
-            document.getElementById('ingresoMonto').value = ''; document.getElementById('gastoMonto').value = ''; document.getElementById('gastoTarjeta').value = '';
+            document.getElementById('ingresoMonto').value = ''; document.getElementById('gastoMonto').value = ''; 
+            document.getElementById('gastoTarjeta').value = ''; document.getElementById('ingresoDetalle').value = ''; document.getElementById('gastoDetalle').value = '';
         }
 
         function guardarVencimiento() {
-            const nombre = document.getElementById('vencNombre').value; 
-            const fecha = document.getElementById('vencFecha').value; 
-            const monto = document.getElementById('vencMonto').value; 
-            
-            const met = document.getElementById('vencMetodo').value;
-            const tarj = document.getElementById('vencTarjeta').value;
+            const nombre = document.getElementById('vencNombre').value; const fecha = document.getElementById('vencFecha').value; const monto = document.getElementById('vencMonto').value; 
+            const met = document.getElementById('vencMetodo').value; const tarj = document.getElementById('vencTarjeta').value;
             const cuentaFinal = met + (tarj ? ' (' + tarj + ')' : '');
-            
             const recurrente = document.getElementById('vencRecurrente').checked ? 'SI' : 'NO';
 
             if(!nombre || !fecha || !monto) return alert('Faltan datos'); 
@@ -426,7 +517,7 @@
         }
 
         function pagarServicio(id, nombre, monto) {
-            if(confirm(`¿Ya pagaste ${nombre}? Se restarán ${fmtARS(monto)} del saldo.`)){ enviarDatos({ action: 'pagarVencimiento', id: id }); }
+            if(confirm(`¿Ya pagaste ${nombre}? Se anotará en tus gastos y se restarán ${fmtARS(monto)} del saldo.`)){ enviarDatos({ action: 'pagarVencimiento', id: id }); }
         }
 
         // --- SISTEMA DE HISTORIAL ---
@@ -444,15 +535,25 @@
             div.innerHTML = '';
 
             const hoy = new Date();
-            const hoyStr = hoy.toLocaleDateString('es-AR');
             const mesActual = hoy.getMonth(); const anioActual = hoy.getFullYear();
 
             let filtrados = appData.transacciones.filter(t => {
                 if(t[2] !== tipo) return false; 
                 const d = new Date(t[1]);
-                if(tiempo === 'Hoy') { return d.toLocaleDateString('es-AR') === hoyStr; } 
-                else if(tiempo === 'Semana') { const diffDays = Math.ceil(Math.abs(hoy - d) / (1000 * 60 * 60 * 24)); return diffDays <= 7; } 
-                else if(tiempo === 'Mes') { return d.getMonth() === mesActual && d.getFullYear() === anioActual; }
+                
+                if(tiempo === 'Hoy') { 
+                    return (hoy.getTime() - d.getTime()) <= 86400000; // 24 horas exactas
+                } 
+                else if(tiempo === 'Semana') { 
+                    return (hoy.getTime() - d.getTime()) <= (7 * 86400000); 
+                } 
+                else if(tiempo === 'Mes') { 
+                    return d.getMonth() === mesActual && d.getFullYear() === anioActual; 
+                }
+                else if(tiempo === '3Meses') {
+                    const hace3Meses = new Date(); hace3Meses.setMonth(hace3Meses.getMonth() - 3);
+                    return d >= hace3Meses;
+                }
                 return true;
             });
 
@@ -462,11 +563,13 @@
             filtrados.forEach(f => {
                 total += parseFloat(f[4]);
                 const metodo = f[5] ? ` | 💳 ${f[5]}` : ''; 
+                const detalle = f.length > 6 && f[6] ? `<br><span style="color:var(--text-muted); font-size:0.85rem;">Detalle: ${f[6]}</span>` : '';
+                
                 div.innerHTML += `
                     <div class="bill-card" style="padding:10px; margin-bottom:8px;">
                         <div class="bill-info">
                             <div class="bill-name" style="font-size:0.95rem;">${f[3]}</div>
-                            <div class="bill-date">${new Date(f[1]).toLocaleDateString('es-AR')}${metodo}</div>
+                            <div class="bill-date">${new Date(f[1]).toLocaleDateString('es-AR')} ${new Date(f[1]).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}${metodo}${detalle}</div>
                         </div>
                         <div class="bill-amount" style="font-size:1rem; color:${tipo==='Ingreso'?'var(--green)':'var(--text)'}">${fmtARS(f[4])}</div>
                     </div>`;
